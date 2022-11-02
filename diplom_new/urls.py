@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from backend.views import PartnerUpdate, ApiRoot, ProductInfoList, ProductInfoDetail
+from backend.views import PartnerUpdate, ApiRoot, ProductInfoList, ProductInfoDetail, OrderList, OrderDetail, \
+    OrderItemList, OrderItemDetail
 from users.views import RegisterUserView
 
 urlpatterns = [
@@ -26,5 +27,9 @@ urlpatterns = [
     path('partner-update/', PartnerUpdate.as_view(), name=PartnerUpdate.name),
     path('products/', ProductInfoList.as_view(), name=ProductInfoList.name),
     path('products/<pk>/', ProductInfoDetail.as_view(), name=ProductInfoDetail.name),
+    path('orders/', OrderList.as_view(), name=OrderList.name),
+    path('orders/<pk>', OrderDetail.as_view(), name=OrderDetail.name),
+    path('items/', OrderItemList.as_view(), name=OrderItemList.name),
+    path('items/<pk>', OrderItemDetail.as_view(), name=OrderItemDetail.name),
     path('', ApiRoot.as_view(), name=ApiRoot.name),
 ]

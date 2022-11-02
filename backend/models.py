@@ -76,7 +76,8 @@ class ProductInfo(models.Model):
     class Meta:
         verbose_name = 'Информация о продукте'
         verbose_name_plural = "Информационный список о продуктах"
-
+    def __str__(self):
+        return self.name
 
 class Parameter(models.Model):
     name = models.CharField(max_length=80, verbose_name='Название')
@@ -112,15 +113,11 @@ class Order(models.Model):
                              on_delete=models.CASCADE)
     dt = models.DateTimeField(auto_now_add=True)
 
-    # ordered_items
-
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = "Список заказов"
         ordering = ('-dt',)
 
-    def __str__(self):
-        return str(self.dt)
 
 
 class OrderItem(models.Model):
@@ -144,10 +141,6 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = 'Заказанная позиция'
         verbose_name_plural = "Список заказанных позиций"
-        constraints = [
-            models.UniqueConstraint(fields=['order', 'product', 'shop'],
-                                    name='unique_order_item'),
-        ]
 
 
 class Contact(models.Model):

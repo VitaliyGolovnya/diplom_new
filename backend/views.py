@@ -12,8 +12,8 @@ from rest_framework.reverse import reverse_lazy
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
-from backend.models import Shop, Category, Product, ProductInfo, ProductParameter, Parameter
-from backend.serializers import ProductSerializer, ProductInfoSerializer
+from backend.models import Shop, Category, Product, ProductInfo, ProductParameter, Parameter, Order, OrderItem
+from backend.serializers import ProductSerializer, ProductInfoSerializer, OrderSerializer, OrderItemSerializer
 
 
 class ApiRoot(generics.GenericAPIView):
@@ -22,7 +22,8 @@ class ApiRoot(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         return Response({
             'uploader': reverse_lazy(PartnerUpdate.name, request=request),
-            'products': reverse_lazy(ProductList.name, request=request),
+            'products': reverse_lazy(ProductInfoList.name, request=request),
+            'orders' : reverse_lazy(OrderList.name, request=request),
 
         })
 
@@ -100,3 +101,35 @@ class ProductInfoDetail(generics.RetrieveAPIView):
     queryset = ProductInfo.objects.all()
     serializer_class = ProductInfoSerializer
     name = 'productinfo-detail'
+
+
+
+class OrderList(generics.ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    name = 'order-list'
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user, ordered_items=[])
+
+class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    name = 'order-detail'
+
+    # def patch(self, request, *args, **kwargs):
+    #     if not request.user.is_authenticated:
+    #         return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+
+
+
+
+class OrderItemList(generics.ListCreateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+    name = 'orderitem-list'
+
+class OrderItemDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+    name = 'orderitem-detail'

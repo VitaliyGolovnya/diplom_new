@@ -53,7 +53,7 @@ class ShopSeriazlier(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['id', 'url', 'name', 'filename']
+        fields = ['id', 'name', 'filename']
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -63,7 +63,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'url', 'products']
+        fields = ['id', 'products']
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -71,7 +71,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'url', 'model', 'product_info']
+        fields = ['id', 'model', 'product_info']
 
 
 class ProductParameterSerializer(serializers.ModelSerializer):
@@ -95,18 +95,21 @@ class ProductInfoSerializer(serializers.ModelSerializer):
         fields = ['shop', 'product', 'name', 'product_parameters', 'quantity', 'price', 'price_rrc']
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(),
-                                        many=True,
-                                        slug_field='email')
-    ordered_items = 'OrderItemSerializer(many=True)'
+class OrderItemSerializer(serializers.HyperlinkedModelSerializer):
+    product = serializers.SlugRelatedField(queryset=ProductInfo.objects.all(),
+                                           slug_field='name')
+    shop = serializers.SlugRelatedField(queryset=Shop.objects.all(),
+                                        slug_field='name')
+    order = serializers.HyperlinkedRelatedField(queryset=Order.objects.all(),
+                                                view_name='order-detail')
 
     class Meta:
-        model = Order
-        fields = ['url', 'user', 'ordered_items']
+        model = OrderItem
+        fields = ['url', 'order', 'product', 'shop', 'quantity']
 
 
-class OrderItemSerializer(serializers.ModelSerializer):
+class OrderItemSerializer1(serializers.HyperlinkedModelSerializer):
+    """"serializer for ordered_items field"""
     product = serializers.SlugRelatedField(queryset=ProductInfo.objects.all(),
                                            slug_field='name')
     shop = serializers.SlugRelatedField(queryset=Shop.objects.all(),
@@ -114,4 +117,18 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['product', 'shop', 'quantity']
+        fields = ['url', 'product', 'shop', 'quantity']
+
+
+class OrderSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.SlugRelatedField(read_only=True,
+                                        slug_field='email')
+    ordered_items = OrderItemSerializer1(many=True)
+
+    def create(self, validated_data):
+        instance = Order.objects.create(user=validated_data['user'])
+        return instance
+
+    class Meta:
+        model = Order
+        fields = ['url', 'id', 'user', 'ordered_items']
