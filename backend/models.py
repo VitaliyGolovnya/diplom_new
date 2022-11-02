@@ -2,7 +2,6 @@ from django.db import models
 
 from users.models import CustomUser
 
-
 CONTACT_CHOICES = (
     ('phone', 'Номер телефона'),
     ('address', 'Адрес'),
@@ -22,6 +21,7 @@ class Shop(models.Model):
     def __str__(self):
         return self.name
 
+
 class Category(models.Model):
     name = models.CharField(max_length=80, verbose_name='Название')
     shops = models.ManyToManyField(Shop, verbose_name='Магазины',
@@ -35,6 +35,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Product(models.Model):
     model = models.CharField(max_length=80, verbose_name='Модель')
@@ -51,13 +52,14 @@ class Product(models.Model):
     def __str__(self):
         return self.model
 
+
 class ProductInfo(models.Model):
     name = models.CharField(max_length=80, verbose_name='Название')
     product = models.ForeignKey(Product,
-                               verbose_name='Продукт',
-                               related_name='product_info',
-                               blank=True,
-                               on_delete=models.CASCADE)
+                                verbose_name='Продукт',
+                                related_name='product_info',
+                                blank=True,
+                                on_delete=models.CASCADE)
 
     shop = models.ForeignKey(Shop,
                              verbose_name='Магазин',
@@ -87,6 +89,7 @@ class Parameter(models.Model):
     def __str__(self):
         return self.name
 
+
 class ProductParameter(models.Model):
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о продукте',
                                      related_name='product_parameters', blank=True,
@@ -102,12 +105,14 @@ class ProductParameter(models.Model):
         verbose_name = 'Параметр'
         verbose_name_plural = "Список параметров"
 
+
 class Order(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name='Пользователь',
                              related_name='orders', blank=True,
                              on_delete=models.CASCADE)
     dt = models.DateTimeField(auto_now_add=True)
-    #ordered_items
+
+    # ordered_items
 
     class Meta:
         verbose_name = 'Заказ'
@@ -116,6 +121,7 @@ class Order(models.Model):
 
     def __str__(self):
         return str(self.dt)
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, verbose_name='Заказ',
@@ -142,6 +148,7 @@ class OrderItem(models.Model):
             models.UniqueConstraint(fields=['order', 'product', 'shop'],
                                     name='unique_order_item'),
         ]
+
 
 class Contact(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name='Пользователь',

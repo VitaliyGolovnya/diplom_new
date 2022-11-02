@@ -16,12 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from backend.views import PartnerUpdate
+from backend.views import PartnerUpdate, ApiRoot, ProductInfoList, ProductInfoDetail
 from users.views import RegisterUserView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth', include('rest_framework.urls')),
     path('signup/', RegisterUserView.as_view(), name='signup'),
-    path('partner-update/', PartnerUpdate.as_view(), name='partner-update')
+    path('partner-update/', PartnerUpdate.as_view(), name=PartnerUpdate.name),
+    path('products/', ProductInfoList.as_view(), name=ProductInfoList.name),
+    path('products/<pk>/', ProductInfoDetail.as_view(), name=ProductInfoDetail.name),
+    path('', ApiRoot.as_view(), name=ApiRoot.name),
 ]

@@ -4,14 +4,31 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import render
 import requests
+from django.urls import reverse
+from rest_framework import generics
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework.reverse import reverse_lazy
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
 from backend.models import Shop, Category, Product, ProductInfo, ProductParameter, Parameter
+from backend.serializers import ProductSerializer, ProductInfoSerializer
+
+
+class ApiRoot(generics.GenericAPIView):
+    name = 'api-root'
+
+    def get(self, request, *args, **kwargs):
+        return Response({
+            'uploader': reverse_lazy(PartnerUpdate.name, request=request),
+            'products': reverse_lazy(ProductList.name, request=request),
+
+        })
 
 
 class PartnerUpdate(APIView):
+    name = 'partner-update'
 
     def yaml_uploader(self, request, stream):
 
@@ -71,3 +88,15 @@ class PartnerUpdate(APIView):
                 return self.yaml_uploader(request=request, stream=stream)
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
+
+
+class ProductInfoList(generics.ListAPIView):
+    queryset = ProductInfo.objects.all()
+    serializer_class = ProductInfoSerializer
+    name = 'productinfo-list'
+
+
+class ProductInfoDetail(generics.RetrieveAPIView):
+    queryset = ProductInfo.objects.all()
+    serializer_class = ProductInfoSerializer
+    name = 'productinfo-detail'

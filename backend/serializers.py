@@ -5,7 +5,7 @@ from backend.models import Shop, Category, Product, ProductInfo, Parameter, Prod
 from users.models import CustomUser
 
 
-class CustomUserSerializer(serializers.HyperlinkedModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True,
                                      required=True,
                                      min_length=8
@@ -14,6 +14,7 @@ class CustomUserSerializer(serializers.HyperlinkedModelSerializer):
     email = serializers.EmailField(required=True,
                                    validators=[UniqueValidator(queryset=CustomUser.objects.all())]
                                    )
+
     class Meta:
         model = CustomUser
         fields = ['email',
@@ -45,8 +46,7 @@ class CustomUserSerializer(serializers.HyperlinkedModelSerializer):
         return user
 
 
-
-class ShopSeriazlier(serializers.HyperlinkedModelSerializer):
+class ShopSeriazlier(serializers.ModelSerializer):
     categories = serializers.SlugRelatedField(queryset=Category.objects.all(),
                                               many=True,
                                               slug_field='name')
@@ -56,7 +56,7 @@ class ShopSeriazlier(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'name', 'filename']
 
 
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     products = serializers.SlugRelatedField(queryset=Product.objects.all(),
                                             many=True,
                                             slug_field='name')
@@ -66,7 +66,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'products']
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     product_info = 'ProductInfoSerializer(many=True)'
 
     class Meta:
@@ -74,21 +74,8 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'model', 'product_info']
 
 
-class ProductInfoSerializer(serializers.HyperlinkedModelSerializer):
-    product = serializers.SlugRelatedField(queryset=Product.objects.all(),
-                                           slug_field='model')
-    shop = serializers.SlugRelatedField(queryset=Shop.objects.all(),
-                                        slug_field='name')
-    product_parameters = 'ProductParameterSerializer(many=True)'
-
-    class Meta:
-        model = ProductInfo
-        fields = ['shop', 'product', 'name', 'product_parameters', 'quantity', 'price', 'price_rrc']
-
-
-class ProductParameterSerializer(serializers.HyperlinkedModelSerializer):
+class ProductParameterSerializer(serializers.ModelSerializer):
     parameter = serializers.SlugRelatedField(queryset=Parameter.objects.all(),
-                                             many=True,
                                              slug_field='name')
 
     class Meta:
@@ -96,7 +83,19 @@ class ProductParameterSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['parameter', 'value']
 
 
-class OrderSerializer(serializers.HyperlinkedModelSerializer):
+class ProductInfoSerializer(serializers.ModelSerializer):
+    product = serializers.SlugRelatedField(queryset=Product.objects.all(),
+                                           slug_field='model')
+    shop = serializers.SlugRelatedField(queryset=Shop.objects.all(),
+                                        slug_field='name')
+    product_parameters = ProductParameterSerializer(many=True)
+
+    class Meta:
+        model = ProductInfo
+        fields = ['shop', 'product', 'name', 'product_parameters', 'quantity', 'price', 'price_rrc']
+
+
+class OrderSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(queryset=CustomUser.objects.all(),
                                         many=True,
                                         slug_field='email')
@@ -107,7 +106,7 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'user', 'ordered_items']
 
 
-class OrderItemSerializer(serializers.HyperlinkedModelSerializer):
+class OrderItemSerializer(serializers.ModelSerializer):
     product = serializers.SlugRelatedField(queryset=ProductInfo.objects.all(),
                                            slug_field='name')
     shop = serializers.SlugRelatedField(queryset=Shop.objects.all(),
