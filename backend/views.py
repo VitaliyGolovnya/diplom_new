@@ -139,21 +139,7 @@ class OrderItemDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OrderItemSerializer
     name = 'orderitem-detail'
 
-    # def get_object(self, pk):
-    #     try:
-    #         return OrderItem.objects.get(pk=pk)
-    #     except OrderItem.DoesNotExist:
-    #         raise Http404
 
-    # def put(self, request, pk):
-    #     item = self.get_object()
-    #     serializer = OrderItemSerializer(item, data=request.data,
-    #                                      context={'request': request})
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         send_email(request)
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -165,10 +151,6 @@ class OrderItemDetail(generics.RetrieveUpdateDestroyAPIView):
         send_email(order=order, user=user)
         return Response(serializer.data)
 
-    # def delete(self, request, *args, **kwargs):
-    #     print(request.data)
-    #     send_email(request)
-    #     return self.destroy(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
