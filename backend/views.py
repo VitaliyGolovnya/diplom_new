@@ -1,11 +1,10 @@
 from django.contrib.sites import requests
+from django.core.mail import send_mail
 from django.core.validators import URLValidator
 from django.db import IntegrityError
-from django.http import JsonResponse
-from django.shortcuts import render
+from django.http import JsonResponse, Http404
 import requests
-from django.urls import reverse
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse_lazy
@@ -13,7 +12,8 @@ from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
 from backend.models import Shop, Category, Product, ProductInfo, ProductParameter, Parameter, Order, OrderItem
-from backend.serializers import ProductSerializer, ProductInfoSerializer, OrderSerializer, OrderItemSerializer
+from backend.serializers import ProductInfoSerializer, OrderSerializer, OrderItemSerializer
+from diplom_new.settings import EMAIL_HOST_USER
 
 
 class ApiRoot(generics.GenericAPIView):
@@ -23,7 +23,8 @@ class ApiRoot(generics.GenericAPIView):
         return Response({
             'uploader': reverse_lazy(PartnerUpdate.name, request=request),
             'products': reverse_lazy(ProductInfoList.name, request=request),
-            'orders' : reverse_lazy(OrderList.name, request=request),
+            'orders': reverse_lazy(OrderList.name, request=request),
+            'items': reverse_lazy(OrderItemList.name, request=request),
 
         })
 
@@ -103,7 +104,6 @@ class ProductInfoDetail(generics.RetrieveAPIView):
     name = 'productinfo-detail'
 
 
-
 class OrderList(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -112,16 +112,11 @@ class OrderList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, ordered_items=[])
 
+
 class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     name = 'order-detail'
-
-    # def patch(self, request, *args, **kwargs):
-    #     if not request.user.is_authenticated:
-    #         return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-
-
 
 
 class OrderItemList(generics.ListCreateAPIView):
@@ -129,7 +124,67 @@ class OrderItemList(generics.ListCreateAPIView):
     serializer_class = OrderItemSerializer
     name = 'orderitem-list'
 
+    def post(self, request):
+        serializer = OrderItemSerializer(data=request.data,
+                                         context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            send_email(request)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class OrderItemDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
     name = 'orderitem-detail'
+
+    # def get_object(self, pk):
+    #     try:
+    #         return OrderItem.objects.get(pk=pk)
+    #     except OrderItem.DoesNotExist:
+    #         raise Http404
+
+    # def put(self, request, pk):
+    #     item = self.get_object()
+    #     serializer = OrderItemSerializer(item, data=request.data,
+    #                                      context={'request': request})
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         send_email(request)
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        order = serializer.data['order']
+        user = serializer.context['request'].user
+        send_email(order=order, user=user)
+        return Response(serializer.data)
+
+    # def delete(self, request, *args, **kwargs):
+    #     print(request.data)
+    #     send_email(request)
+    #     return self.destroy(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        order = serializer.data['order']
+        user = serializer.context['request'].user
+        send_email(order=order, user=user)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def send_email(order, user):
+    data = (
+        'Изменение заказа',
+        f'Заказ {order} изменился.',
+        EMAIL_HOST_USER,
+        [user]
+    )
+    return send_mail(*data)
