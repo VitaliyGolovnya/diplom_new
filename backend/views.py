@@ -8,6 +8,7 @@ from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse_lazy
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
@@ -31,7 +32,8 @@ class ApiRoot(generics.GenericAPIView):
 
 class PartnerUpdate(APIView):
     name = 'partner-update'
-
+    throttle_scope = 'update-shop'
+    throttle_classes = (ScopedRateThrottle,)
     def yaml_uploader(self, request, stream):
 
         data = load_yaml(stream, Loader=Loader)
