@@ -15,21 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from backend.views import PartnerUpdate, ApiRoot, ProductInfoList, ProductInfoDetail, OrderList, OrderDetail, \
-    OrderItemList, OrderItemDetail
+from backend.views import PartnerUpdate, ProductViewSet, OrderViewSet, OrderItemViewSet
 from users.views import RegisterUserView
+
+router = DefaultRouter()
+router.register(r'products', ProductViewSet, basename='product')
+router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'orderitems', OrderItemViewSet, basename='orderitem')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth', include('rest_framework.urls')),
     path('signup/', RegisterUserView.as_view(), name='signup'),
     path('partner-update/', PartnerUpdate.as_view(), name=PartnerUpdate.name),
-    path('products/', ProductInfoList.as_view(), name=ProductInfoList.name),
-    path('products/<pk>/', ProductInfoDetail.as_view(), name=ProductInfoDetail.name),
-    path('orders/', OrderList.as_view(), name=OrderList.name),
-    path('orders/<pk>', OrderDetail.as_view(), name=OrderDetail.name),
-    path('items/', OrderItemList.as_view(), name=OrderItemList.name),
-    path('items/<pk>', OrderItemDetail.as_view(), name=OrderItemDetail.name),
-    path('', ApiRoot.as_view(), name=ApiRoot.name),
+    path('', include(router.urls)),
 ]

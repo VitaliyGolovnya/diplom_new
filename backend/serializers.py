@@ -101,7 +101,7 @@ class OrderItemSerializer(serializers.HyperlinkedModelSerializer):
     shop = serializers.SlugRelatedField(queryset=Shop.objects.all(),
                                         slug_field='name')
     order = serializers.HyperlinkedRelatedField(queryset=Order.objects.all(),
-                                                view_name='order-detail')
+                                                view_name='orderitem-detail')
     class Meta:
         model = OrderItem
         fields = ['url', 'order', 'product', 'shop', 'quantity']
