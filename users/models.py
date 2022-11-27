@@ -1,10 +1,11 @@
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 from users.managers import CustomUserManager
 
 
-class CustomUser(AbstractBaseUser):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     USER_TYPE_CHOICES = (
         ('shop', 'Магазин'),
         ('buyer', 'Покупатель'),

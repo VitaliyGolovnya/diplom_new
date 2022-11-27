@@ -19,5 +19,5 @@ urlpatterns = [
     path('partner-update/', PartnerUpdate.as_view(), name=PartnerUpdate.name),
     path('', include(router.urls)),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(), name='swagger-ui')
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(), name='swagger-ui'),
 ]
