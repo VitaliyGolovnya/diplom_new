@@ -18,6 +18,10 @@ from diplom_new.settings import EMAIL_HOST_USER
 
 
 class PartnerUpdate(APIView):
+    """
+    Updates products in shops from json or yaml files
+    """
+
     name = 'partner-update'
     throttle_scope = 'update-shop'
     throttle_classes = (ScopedRateThrottle,)
@@ -83,11 +87,17 @@ class PartnerUpdate(APIView):
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    List or retrieve product
+    """
     queryset = ProductInfo.objects.all()
     serializer_class = ProductInfoSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
+    """
+    List, create, retrieve, update or destroy order
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
@@ -96,6 +106,9 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class OrderItemViewSet(viewsets.ModelViewSet):
+    """
+    List, create, retrieve, update or destroy ordered items
+    """
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
 

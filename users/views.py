@@ -8,6 +8,9 @@ from users.models import CustomUser
 
 
 class RegisterUserView(generics.CreateAPIView):
+    """
+    Register new CustomUser model
+    """
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]

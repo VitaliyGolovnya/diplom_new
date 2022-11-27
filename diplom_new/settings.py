@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'backend',
+    'drf_spectacular',
 
 
 ]
@@ -151,7 +152,8 @@ REST_FRAMEWORK = {
         'anon': '5/m',
         'user': '20/m',
         'update-shop': '1/m'
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 DJOSER = {
@@ -166,3 +168,11 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+SPECTACULAR_SETTINGS = {
+        'TITLE': 'Orders API',
+        'DESCRIPTION': 'API documentation for orders project',
+        'VERSION': '1.0.0',
+        'SERVE_INCLUDE_SCHEMA': False,
+        'COMPONENT_SPLIT_REQUEST': True,
+    }
