@@ -1,20 +1,18 @@
 from django.contrib.sites import requests
-from django.core.mail import send_mail
 from django.core.validators import URLValidator
 from django.db import IntegrityError
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 import requests
-from rest_framework import generics, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.reverse import reverse_lazy
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from yaml import load as load_yaml, Loader
 
 from backend.models import Shop, Category, Product, ProductInfo, ProductParameter, Parameter, Order, OrderItem
 from backend.serializers import ProductInfoSerializer, OrderSerializer, OrderItemSerializer
-from diplom_new.settings import EMAIL_HOST_USER
+from backend.task import send_email
 
 
 class PartnerUpdate(APIView):
@@ -142,11 +140,4 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def send_email(order, user):
-    data = (
-        'Изменение заказа',
-        f'Заказ {order} изменился.',
-        EMAIL_HOST_USER,
-        [user]
-    )
-    return send_mail(*data)
+
