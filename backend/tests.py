@@ -32,17 +32,32 @@ class CustomUserTests(APITestCase):
 
 class OrderTest(APITestCase):
 
-    def test_create_and_retrieve_order(self):
-        '''
-        test Order creation and retrieve
-        '''
+    def create_order(self):
         url = reverse('order-list')
         data = {
             'ordered_items': [],
         }
-
         self.client.post(user_url, user_data, format='json')
         self.client.login(email='test@test.com', password='test_password')
         response = self.client.post(url, data, format='json')
+        return response
+
+    def test_create_and_retrieve_order(self):
+        '''
+        test Order creation and retrieve
+        '''
+        response = self.create_order()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Order.objects.count(), 1)
+
+    def test_retrieve_orders_list(self):
+        '''
+        test Order list
+        '''
+        self.create_order()
+        url = reverse('order-list')
+        response = self.client.get(url, format='json')
+        print(response.json())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]['ordered_items'], [])
