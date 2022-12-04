@@ -14,6 +14,7 @@ router.register(r'orderitems', OrderItemViewSet, basename='orderitem')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path('api-auth', include('rest_framework.urls')),
     path('signup/', RegisterUserView.as_view(), name='signup'),
     path('partner-update/', PartnerUpdate.as_view(), name=PartnerUpdate.name),

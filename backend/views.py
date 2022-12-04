@@ -138,6 +138,3 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         send_email(order=order, user=user)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
