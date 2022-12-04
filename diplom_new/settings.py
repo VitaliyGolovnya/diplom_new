@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -47,8 +48,10 @@ INSTALLED_APPS = [
     'users',
     'backend',
     'drf_spectacular',
-
-
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.vk',
 ]
 
 MIDDLEWARE = [
@@ -194,3 +197,16 @@ DRAMATIQ_BROKER = {
         "django_dramatiq.middleware.AdminMiddleware",
     ]
 }
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_USER_MODEL_USERNAME_FIELD=None
+
